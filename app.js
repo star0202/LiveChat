@@ -18,6 +18,13 @@ app.get("/", function(request, response){
             response.write(data);
             response.end();
         }
-    })
+    });
 });
+
+io.sockets.on("connection", function(socket){
+    console.log("User connected");
+    socket.on("send", (data)=>console.log("Sent message:", data.msg))
+    socket.on("disconnect", ()=>console.log("User disconnected"))
+});
+
 server.listen(8000, ()=>console.log("Running..."));
