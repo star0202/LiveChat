@@ -22,9 +22,26 @@ app.get("/", function(request, response){
 });
 
 io.sockets.on("connection", function(socket){
-    console.log("User connected");
-    socket.on("send", (data)=>console.log("Sent message:", data.msg))
-    socket.on("disconnect", ()=>console.log("User disconnected"))
+    socket.on("newUser", function(name) {
+        console.log(name + " was connected.");
+        socket.name = name;
+        io.sockets.emit("update", {
+            type: "connect", name: "SERVER", message: name + " was connected."
+        });
+    });
+
+    socket.on("message", function(data){
+        data.name = socket.name;
+        console.log(data);
+        socket.broadcast.emit("update", data);
+    });
+
+    socket.on("disconnect", function(){
+        console.log(socket.name + " was disconnected.")
+        socket.broadcast.emit("update", {
+            type: "disconnect", name: "SERVER", message: socket.name + " was disconnected."
+        });
+    });
 });
 
-server.listen(8000, ()=>console.log("Running..."));
+server.listen(8000, console.log("Running..."));
